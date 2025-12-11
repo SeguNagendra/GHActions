@@ -46,5 +46,14 @@ jobs:
     steps:
       - name: Print working directory
         run : pwd
+
+  demo:
+    needs: runner-name
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: dev
+    steps:
+      - name: Print APP_ENV variable
+        run: echo "ENVIRONMENT: $APP_ENV"
      
      
