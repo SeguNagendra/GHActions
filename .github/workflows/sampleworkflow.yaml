@@ -33,9 +33,18 @@ jobs:
       - run: uname -a
       - run: echo "Running on $RUNNER_OS"
 
-  date:
+  date-job:
+    needs: runner-name 
     runs-on: ubuntu-latest
     steps:
-      - run: date
-      - run: pwd 
+      - name: show date
+        run: date
+
+  pwd-job:
+    needs: runner-name
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print working directory
+        run : pwd
+     
      
