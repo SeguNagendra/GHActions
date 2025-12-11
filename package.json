@@ -1,0 +1,11 @@
+{
+  "name": "gha-cache-demo",
+  "version": "1.0.0",
+  "description": "Minimal project to demo GitHub Actions cache",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}
