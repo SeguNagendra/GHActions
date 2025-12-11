@@ -12,3 +12,9 @@ jobs:
         uses: actions/checkout@v3
       - name: run list of files
         run: ls -l 
+   runner-name:
+     runs-on: ubuntu-latest
+     steps:
+       - run: uname -a
+       - run: echo "Running on $RUNNER_OS"
+     needs: sampleworkflow 
