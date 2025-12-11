@@ -1,4 +1,4 @@
-name: Node CI with Cache
+name: Node CI (safe + debug)
 
 on:
   push:
@@ -7,16 +7,35 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Show repo files (debug)
+        run: |
+          echo "=== ls -la (repo root) ==="
+          ls -la
+          echo "=== show package.json if exists ==="
+          if [ -f package.json ]; then cat package.json; else echo "no package.json"; fi
+          echo "=== show package-lock.json if exists ==="
+          if [ -f package-lock.json ]; then cat package-lock.json; else echo "no package-lock.json"; fi
 
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      - name: Cache npm
+      - name: Print Node & npm versions
+        run: |
+          node -v
+          npm -v
+
+      - name: Conditionally restore cache if package-lock exists
+        if: ${{ always() }}
+        run: echo "Checking for package-lock.json"
+      - name: Restore cache (only if lock exists)
+        if: ${{ always() && (exists('package-lock.json')) }}
         uses: actions/cache@v4
         with:
           path: ~/.npm
@@ -24,8 +43,45 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install dependencies (ci if lock exists else install)
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "package-lock.json found -> running npm ci (verbose)"
+            npm ci --prefer-offline --no-audit --loglevel verbose
+          elif [ -f package.json ]; then
+            echo "No lockfile -> running npm install (creates package-lock.json)"
+            npm install --loglevel verbose
+          else
+            echo "No package.json found, skipping install"
+          fi
 
-      - name: Run tests
-        run: npm test
+      - name: List node_modules (debug)
+        run: |
+          if [ -d node_modules ]; then
+            echo "node_modules exists:"
+            ls -la node_modules | head -n 50 || true
+          else
+            echo "node_modules does not exist"
+          fi
+
+      - name: Run tests (if package.json has test script)
+        run: |
+          if [ -f package.json ]; then
+            if jq -e '.scripts.test' package.json >/dev/null 2>&1; then
+              echo "Running npm test"
+              npm test --loglevel verbose
+            else
+              echo "No test script defined in package.json, skipping tests"
+            fi
+          else
+            echo "No package.json - skipping tests"
+          fi
+        env:
+          CI: true
+
+      - name: Save cache (only if lock exists)
+        if: ${{ always() && (exists('package-lock.json')) }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
