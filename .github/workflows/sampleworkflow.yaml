@@ -54,6 +54,6 @@ jobs:
       APP_ENV: dev
     steps:
       - name: Print APP_ENV variable
-        run: echo "ENVIRONMENT: $APP_ENV"
+        run: echo "ENVIRONMENT:$APP_ENV"
      
      
