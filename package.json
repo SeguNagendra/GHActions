@@ -1,0 +1,12 @@
+{
+  "name": "matrix-demo-app",
+  "version": "1.0.0",
+  "description": "Minimal Node.js app to test GitHub Actions matrix strategy",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}
