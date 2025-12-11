@@ -12,8 +12,14 @@ jobs:
         uses: actions/checkout@v3
       - name: run list of files
         run: ls -l 
-  runner-name:
+  wait-job:
     needs: sampleworkflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: sleep 10 After sampleworkflow completes
+        run: sleep 10
+  runner-name:
+    needs: wait-job
     runs-on: ubuntu-latest
     steps:
       - run: uname -a
